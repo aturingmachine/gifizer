@@ -1,45 +1,28 @@
-import { resolve } from 'path'
-import minimist from 'minimist'
+#!/usr/bin/env node
+
+import { Args, Log } from './args'
 import * as Gifer from './gifer'
-import { PresetNames, Presets } from './presets'
+import { HelpMessage } from './help-log'
 
 async function run(): Promise<void> {
-  const args = minimist(process.argv.slice(2), {
-    alias: {
-      help: ['h'],
-      overwrite: ['f', 'o'],
-    },
-    boolean: ['overwrite', 'help'],
-  })
+  const GiferArgs = new Args(process.argv)
 
-  if (args.h || args.help) {
-    console.log('Help Message')
+  if (GiferArgs.help) {
+    console.log(HelpMessage)
     process.exit(0)
   }
 
-  let parsed: Gifer.GiferParams
-
-  if (args.preset) {
-    parsed = { ...args, ...Presets[args.preset as PresetNames] }
-  } else {
-    parsed = {
-      scale: args.scale ? args.scale.split(':') : undefined,
-      framerate: args.framerate,
-      max_colors: args.max_colors,
-      dither: args.dither,
-      overwrite: args.overwrite,
-    }
-  }
-
-  const inName = resolve(__dirname, args._[0])
-  const outName = resolve(args._[1])
-
-  const instance = new Gifer.Converter(parsed as Gifer.GiferParams)
+  const instance = new Gifer.Converter(GiferArgs.config)
 
   try {
-    await instance.convert(inName, outName)
+    Log.write(`Converting ${GiferArgs.inName} to ${GiferArgs.outName}`)
+    await instance.convert(
+      GiferArgs.inName,
+      GiferArgs.outName,
+      GiferArgs.verbose
+    )
   } catch (error) {
-    console.error('Unable to convert Gif')
+    Log.write('Unable to convert Gif')
     console.error(error)
   }
 }

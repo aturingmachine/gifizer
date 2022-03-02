@@ -1,8 +1,12 @@
 {
   "name": "gifizer",
-  "version": "1.0.0",
+  "version": "0.0.3-alpha",
   "description": "",
+  "files": [
+    "dist/"
+  ],
   "main": "dist/index.js",
+  "bin": "dist/index.js",
   "scripts": {
     "prepublishOnly": "npm run build",
     "build": "tsc",
@@ -28,6 +32,8 @@
   },
   "dependencies": {
     "dargs": "^8.1.0",
-    "execa": "^5.1.1"
+    "execa": "^5.1.1",
+    "minimist": "^1.2.5",
+    "yaml": "^1.10.2"
   }
 }

@@ -21,7 +21,13 @@ export type DitherConfig = {
 export class Dither {
   constructor(readonly config: DitherConfig) {
     if (!Object.values(DitherTypes).includes(config.type)) {
-      throw new Error(`${config.type} is not a valid Dither Type`)
+      throw new Error(
+        `${
+          config.type
+        } is not a valid Dither Type. Valid types are ${Object.values(
+          DitherTypes
+        ).join(', ')}`
+      )
     }
   }
 

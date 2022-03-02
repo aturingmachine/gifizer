@@ -1,5 +1,7 @@
 import execa, { ExecaReturnValue } from 'execa'
+import { Log } from './args'
 import { DitherTypes, DitherConfig, Dither } from './dither'
+import { dump } from './utils'
 
 export type GiferParams = {
   framerate?: number | 'variable'
@@ -59,8 +61,6 @@ function getColors(path: string): string {
     ])
     .stdout.toLowerCase()
 }
-
-//select=not(mod(n\,2))
 
 export class Converter {
   private select: FPSSkips | 'variable' | undefined
@@ -127,25 +127,34 @@ export class Converter {
     return this.config.overwrite ? '-y' : ''
   }
 
-  async convert(
+  convert(
     inputPath: string,
-    outputPath?: string
+    outputPath: string,
+    isVerbose = false
   ): Promise<ExecaReturnValue<string>> {
-    const out = outputPath || inputPath + '_out.gif'
+    Log.debug(
+      `${dump('final GiferOptions: ', {
+        select: this.select,
+        framerate: this._framerate,
+        max_colors: this.max_colors,
+        scale: this.scale,
+        dither: this.dither,
+      })}`
+    )
+
     const args = [
       this.overwrite,
       '-i',
       inputPath,
       '-filter_complex',
       this.filter_complex(inputPath),
-      out,
+      outputPath,
     ].filter(Boolean)
 
-    // console.log(args.join(' '))
+    Log.debug(`ffmpeg args: ${args.join(' ')}\n`)
 
     return execa('/usr/bin/ffmpeg', args, {
-      stdout: 'ignore',
-      stderr: 'ignore',
+      stdio: isVerbose ? 'inherit' : 'ignore',
     })
   }
 }
