@@ -1,7 +1,8 @@
-import { readFileSync, accessSync } from 'fs'
+import { readFileSync } from 'fs'
 import YAML from 'yaml'
 import { Log } from './args'
 import { GiferParams } from './gifer'
+import { pathExists } from './utils'
 
 const yamlPaths = [
   '~/.gifizer.yaml',
@@ -11,15 +12,6 @@ const yamlPaths = [
 ]
 
 const jsonPaths = ['~/.gifizer.json', './.gifizer.json']
-
-function pathExists(path: string): boolean {
-  try {
-    accessSync(path)
-    return true
-  } catch (error) {
-    return false
-  }
-}
 
 type Config = {
   presets: Record<string, GiferParams>

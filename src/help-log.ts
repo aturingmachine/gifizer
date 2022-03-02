@@ -18,14 +18,14 @@ Use all defaults:
 Use "fast" preset:
   gifizer /path/to/video.mp4 /path/to/output.gif --preset=fast
 Use config from cli:
-  gifizer /path/to/video.mp4 /path/to/output.gif \
-  --framerate=24 \
-  --scale=320:-1 \
-  --max_colors=none \
-  --select=medium \
-  --dither.type=bayer \
-  --dither.new=true \
-  --dither.bayer_scale=1
+  gifizer /path/to/video.mp4 /path/to/output.gif \\
+  --framerate=24 \\
+  --scale=320:-1 \\
+  --max_colors=none \\
+  --select=medium \\
+  --dither.type=bayer \\
+  --dither.new=true \\
+  --dither.bayer_scale=1 \\
   --overwrite
 
 Options:
@@ -37,6 +37,9 @@ Options:
   --force
   -o
   -f
+
+--no-overwrite      Don't explode if the outfile already exists.
+  -n                Overrides the --overwrite flag.
 
 --debug             Output more information during the run.
   -d

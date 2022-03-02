@@ -12,8 +12,9 @@ export class Args {
       overwrite: ['f', 'o', 'force'],
       debug: ['d'],
       verbose: ['v'],
+      'no-overwrite': ['n'],
     },
-    boolean: ['overwrite', 'help', 'debug'],
+    boolean: ['overwrite', 'help', 'debug', 'verbose', 'no-overwrite'],
   }
 
   private readonly _args
@@ -21,7 +22,7 @@ export class Args {
   public readonly help: boolean
   public readonly debug!: boolean
   public readonly verbose!: boolean
-  public readonly overwrite!: boolean
+  public readonly overwrite!: -1 | 0 | 1
   public readonly preset!: boolean
   public readonly inName!: string
   public readonly outName!: string
@@ -39,16 +40,28 @@ export class Args {
 
       Log.init(this.debug)
 
-      this.overwrite =
-        this._args.overwrite || this._args.o || this._args.f || this._args.force
+      this.overwrite = Args.parseOverwrite(
+        !!(
+          this._args.overwrite ||
+          this._args.o ||
+          this._args.f ||
+          this._args.force
+        ),
+        !!this._args['no-overwrite']
+      )
       this.preset = this._args.preset
 
       this.config = this.buildConfig()
 
       this.inName = resolve(__dirname, this._args._[0])
-      this.outName = resolve(this._args._[1]) || this.inName + '_out.gif'
 
-      if (!resolve(this._args._[1])) {
+      const hasOut = !!this._args._[1]
+      // generate the outfile name if one was not provided
+      this.outName = hasOut
+        ? resolve(this._args._[1])
+        : this.inName + '_out.gif'
+
+      if (!hasOut) {
         Log.debug(`using generated outname: ${this.outName}`)
       }
 
@@ -70,7 +83,11 @@ export class Args {
         )
       }
 
-      return { ...this._args, ...(custom || builtIn) }
+      return {
+        ...this._args,
+        overwrite: this.overwrite,
+        ...(custom || builtIn),
+      }
     } else {
       Log.debug('no preset set - using a la carte args and defaults')
       return {
@@ -78,9 +95,20 @@ export class Args {
         framerate: this._args.framerate,
         max_colors: this._args.max_colors,
         dither: this._args.dither,
-        overwrite: this._args.overwrite,
+        overwrite: this.overwrite,
       }
     }
+  }
+
+  private static parseOverwrite(
+    overwrite: boolean,
+    noOverwrite: boolean
+  ): -1 | 0 | 1 {
+    if (!noOverwrite) {
+      return overwrite ? 1 : 0
+    }
+
+    return -1
   }
 
   private static get customConfs(): Record<string, GiferParams> {
@@ -97,6 +125,10 @@ export class Log {
 
   static write(...args: unknown[]): void {
     console.log(...args)
+  }
+
+  static warn(...args: unknown[]): void {
+    console.warn(...args)
   }
 
   static debug(...args: unknown[]): void {

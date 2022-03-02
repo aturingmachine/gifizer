@@ -1,14 +1,23 @@
-import execa, { ExecaReturnValue } from 'execa'
+import execa, { ExecaSyncReturnValue } from 'execa'
 import { Log } from './args'
 import { DitherTypes, DitherConfig, Dither } from './dither'
-import { dump } from './utils'
+import { dump, pathExists } from './utils'
+
+class PathExistsError extends Error {
+  constructor(outPath: string) {
+    super(
+      `PATH ALREADY EXISTS: ${outPath} already exists. Use the --overwrite flag to forve an overwrite of the existing file, or use the --no-overwrite flag to skip existing paths without failing.`
+    )
+    this.name = 'PathExistsError'
+  }
+}
 
 export type GiferParams = {
   framerate?: number | 'variable'
   scale?: [number, number]
   max_colors?: number | 'none' | 'variable'
   dither?: DitherTypes | DitherConfig
-  overwrite?: boolean
+  overwrite?: -1 | 0 | 1
   select?: FPSSkips | 'variable'
 }
 
@@ -124,14 +133,28 @@ export class Converter {
   }
 
   get overwrite(): string {
-    return this.config.overwrite ? '-y' : ''
+    let val = ''
+
+    switch (this.config.overwrite) {
+      case 1:
+        val = '-y'
+        break
+      case -1:
+        val = '-n'
+        break
+      case 0:
+      default:
+        break
+    }
+
+    return val
   }
 
   convert(
     inputPath: string,
     outputPath: string,
     isVerbose = false
-  ): Promise<ExecaReturnValue<string>> {
+  ): ExecaSyncReturnValue<string> {
     Log.debug(
       `${dump('final GiferOptions: ', {
         select: this.select,
@@ -153,8 +176,20 @@ export class Converter {
 
     Log.debug(`ffmpeg args: ${args.join(' ')}\n`)
 
-    return execa('/usr/bin/ffmpeg', args, {
-      stdio: isVerbose ? 'inherit' : 'ignore',
-    })
+    try {
+      return execa.sync('/usr/bin/ffmpeg', args, {
+        stdio: isVerbose ? 'inherit' : 'ignore',
+      })
+    } catch (error) {
+      if (
+        !!this.config.overwrite &&
+        this.config.overwrite < 1 &&
+        pathExists(outputPath)
+      ) {
+        throw new PathExistsError(outputPath)
+      }
+
+      throw error
+    }
   }
 }

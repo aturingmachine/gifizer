@@ -1,3 +1,5 @@
+import { accessSync } from 'fs'
+
 export function dump(msg: string, o: any, level = 1): string {
   return Object.keys(o).reduce((p, c) => {
     const tabs = new Array(level)
@@ -11,4 +13,13 @@ export function dump(msg: string, o: any, level = 1): string {
 
     return p.concat(`\n${tabs}${c}: ${o[c]}`)
   }, `${msg}`)
+}
+
+export function pathExists(path: string): boolean {
+  try {
+    accessSync(path)
+    return true
+  } catch (error) {
+    return false
+  }
 }

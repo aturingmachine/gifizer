@@ -16,14 +16,23 @@ async function run(): Promise<void> {
 
   try {
     Log.write(`Converting ${GiferArgs.inName} to ${GiferArgs.outName}`)
-    await instance.convert(
-      GiferArgs.inName,
-      GiferArgs.outName,
-      GiferArgs.verbose
-    )
-  } catch (error) {
-    Log.write('Unable to convert Gif')
-    console.error(error)
+    instance.convert(GiferArgs.inName, GiferArgs.outName, GiferArgs.verbose)
+    Log.write(`Conversion complete!`)
+    process.exit(0)
+  } catch (error: any) {
+    Log.write('Unable to convert Gif', (error as Error).name)
+    if (
+      (error as Error).name === 'PathExistsError' &&
+      GiferArgs.overwrite === -1
+    ) {
+      Log.warn(
+        `[WARN] ${GiferArgs.outName} already exists & --no-overwrite set - skipping. Use --overwrite to force overwriting the existing file.`
+      )
+      process.exit(0)
+    } else {
+      console.error(error)
+      process.exit(1)
+    }
   }
 }
 

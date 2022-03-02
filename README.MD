@@ -48,6 +48,9 @@ Use config from cli:
   -o
   -f
 
+--no-overwrite      Don't explode if the outfile already exists.
+  -n                Overrides the --overwrite flag.
+
 --debug             Output more information during the run.
   -d
 
