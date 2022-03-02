@@ -1,0 +1,25 @@
+{
+  "include": [
+    "src/**/*",
+  ],
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "lib": [
+      "ES2015"
+    ],
+    "outDir": "dist",
+    "types": [
+      "node",
+    ],
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "~/*": [
+        "./src/*"
+      ]
+    },
+  },
+}
