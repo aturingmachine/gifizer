@@ -5,6 +5,16 @@ import { GiferParams } from './gifer'
 import { Presets, PresetNames } from './presets'
 import { dump } from './utils'
 
+export enum Formats {
+  Webp = 'webp',
+  GIF = 'gif',
+  apng = 'apng',
+}
+
+function hasExtension(path: string): boolean {
+  return ['.apng', '.webp', '.gif'].some((ext) => path.includes(ext))
+}
+
 export class Args {
   private static MinimistOpts = {
     alias: {
@@ -26,6 +36,8 @@ export class Args {
   public readonly preset!: boolean
   public readonly inName!: string
   public readonly outName!: string
+  public readonly format!: Formats | undefined
+  public readonly extension!: string
 
   public readonly config!: GiferParams
 
@@ -55,11 +67,29 @@ export class Args {
 
       this.inName = resolve(__dirname, this._args._[0])
 
-      const hasOut = !!this._args._[1]
+      this.format = this._args.format
+
+      const proposedOutFile = this._args._[1]
+      const hasOut = !!proposedOutFile
+
+      if (this.format) {
+        this.extension = `.${Object.values(Formats).find(
+          (v) => v === this.format
+        )}`
+      } else {
+        this.extension = hasOut
+          ? proposedOutFile.slice(proposedOutFile.lastIndexOf('.'))
+          : '.gif'
+      }
+
       // generate the outfile name if one was not provided
       this.outName = hasOut
-        ? resolve(this._args._[1])
-        : this.inName + '_out.gif'
+        ? resolve(
+            (hasExtension(proposedOutFile)
+              ? proposedOutFile.slice(0, proposedOutFile.lastIndexOf('.'))
+              : proposedOutFile) + this.extension
+          )
+        : this.inName + `_out${this.extension}`
 
       if (!hasOut) {
         Log.debug(`using generated outname: ${this.outName}`)

@@ -1,6 +1,6 @@
 # Gifizer
 
-Convert Videos to GIFS via ffmpeg.
+Convert Videos to GIFs, APNGs, and WEBPs via ffmpeg.
 
 ```
 npm i -g gifizer
@@ -56,6 +56,12 @@ Use config from cli:
 
 --verbose           Output debug information and pipe the output of
   -v                ffmpeg to your stdio.
+
+--format            Set the output format. If one is not set we will
+                    try to infer the output type based on the extension
+                    of the outfile. If a format is provided the extension
+                    of the outfile will be overridden.
+                    'apng' | 'gif' | 'webp'
 ```
 
 ## Conversion Options:

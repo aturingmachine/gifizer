@@ -167,6 +167,8 @@ export class Converter {
 
     const args = [
       this.overwrite,
+      // '-loop',
+      // '0',
       '-i',
       inputPath,
       '-filter_complex',
