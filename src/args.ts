@@ -65,7 +65,7 @@ export class Args {
 
       this.config = this.buildConfig()
 
-      this.inName = resolve(__dirname, this._args._[0])
+      this.inName = resolve(process.cwd(), this._args._[0])
 
       this.format = this._args.format
 
@@ -85,6 +85,7 @@ export class Args {
       // generate the outfile name if one was not provided
       this.outName = hasOut
         ? resolve(
+            process.cwd(),
             (hasExtension(proposedOutFile)
               ? proposedOutFile.slice(0, proposedOutFile.lastIndexOf('.'))
               : proposedOutFile) + this.extension
